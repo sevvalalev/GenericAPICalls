@@ -6,16 +6,15 @@
 //
 
 import UIKit
-
+// player model
 struct PlayerResponse: Codable {
     let data: [Player]
 }
 
 struct Player: Codable {
     let first_name: String?
-    let last_name: String?
 }
-
+// team model
 struct TeamResponse: Codable {
     let data: [Team]
 }
@@ -54,11 +53,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         tableView.frame = view.bounds
     }
     
-    func fetchPlayer() { //custom function we made
-        URLSession.shared.request(
-            url: Constants.playersUrl,
-            expecting: PlayerResponse.self
-            ) { [weak self] result in
+    func fetchPlayer() {
+        URLSession.shared.request(url: Constants.playersUrl,expecting: PlayerResponse.self) { [weak self] result in
             switch result {
             case .success(let players):
                 DispatchQueue.main.async {
@@ -73,10 +69,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
         
         func fetchTeams() {
-            URLSession.shared.request(
-                url: Constants.teamsUrl,
-                expecting: TeamResponse.self
-                ) { [weak self] result in
+            URLSession.shared.request(url: Constants.teamsUrl,expecting: TeamResponse.self) { [weak self] result in
                 switch result {
                 case .success(let teams):
                     DispatchQueue.main.async {
@@ -104,14 +97,14 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
 
 extension URLSession {
     
-    enum CustomError: Error {
+    enum NetworkError: Error {
         case invalidUrl
         case invaildData
     }
     
     func request<T: Codable>(url: URL?, expecting: T.Type , completion: @escaping (Result<T, Error>) -> Void) {
         guard let url = url else {
-            completion(.failure(CustomError.invalidUrl))
+            completion(.failure(NetworkError.invalidUrl))
             return
         }
         
@@ -120,7 +113,7 @@ extension URLSession {
                 if let error = error {
                     completion(.failure(error))
                 }else{
-                    completion(.failure(CustomError.invaildData))
+                    completion(.failure(NetworkError.invaildData))
                 }
                 return
             }
